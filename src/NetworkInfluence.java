@@ -23,37 +23,41 @@ public class NetworkInfluence
 	/**
 	 * String array alternating origin vertex followed by vertex it shares an edge with.
 	 */
-	private String[] edges;
+	public ArrayList<String> edges;
 
+	/**
+	 * adjacency Matrix implemented as 2d int array
+	 */
 	private int[][] adjMatrix;
 
 	/**
 	 * Array of LinkedLists. 1st element in each list is the 'origin' vertex, followed by its neighbors
 	 */
-	private LinkedList<String>[] adjList;
+	public LinkedList<String>[] adjList;
 
 	/**
 	 * ArrayList of all vertices in the web graph
 	 */
-	private ArrayList<String> vertices;
+	public ArrayList<String> vertices;
 
-	private ArrayList<Vertex> vertexObjects;
+	/**
+	 * ArrayList of all vertices in graph represented as VERTEX Objects
+	 */
+	public ArrayList<Vertex> vertexObjects;
 
 	/**
 	 * Number of vertices in the Web Graph
 	 */
-	private int numVert;
+	public int numVert;
 
 	// NOTE: graphData is an absolute file path that contains graph data, NOT the raw graph data itself
 	public NetworkInfluence(String graphData) throws FileNotFoundException {
 		File f = new File(graphData);
 		Scanner s = new Scanner(f);
 		numVert = s.nextInt();
-		edges = new String[numVert * 2];
-		int index = 0;
+		edges = new ArrayList<String>();
 		while(s.hasNext()){
-			edges[index] = s.next();
-			index++;
+			edges.add(s.next());
 		}
 		initVertices();
 		initAdjacencyList();
@@ -63,9 +67,9 @@ public class NetworkInfluence
 	private void initVertices(){
 		vertices = new ArrayList<String>();
 		vertexObjects = new ArrayList<>();
-		for(int i = 0; i < edges.length; i++){
-			if(!vertices.contains(edges[i])){
-				vertices.add(edges[i]);
+		for(int i = 0; i < edges.size(); i++){
+			if(!vertices.contains(edges.get(i))){
+				vertices.add(edges.get(i));
 			}
 		}
 		for(int i = 0; i < vertices.size(); i++){
@@ -82,9 +86,9 @@ public class NetworkInfluence
 		for(int i = 0; i < adjList.length; i++){
 			adjList[i].add(vertices.get(i));
 		}
-		for(int i = 0; i < edges.length; i+=2){
-			String origin = edges[i];
-			String neighbor = edges[i+1];
+		for(int i = 0; i < edges.size(); i+=2){
+			String origin = edges.get(i);
+			String neighbor = edges.get(i+1);
 			addPairToList(origin, neighbor);
 		}
 	}
@@ -115,19 +119,22 @@ public class NetworkInfluence
 		return -1;
 	}
 
-	private void addNearbyElementsToQueue(Vertex v, Queue<Vertex> q){
+	private Vertex addNearbyElementsToQueue(Vertex v, Queue<Vertex> q, String end){
 	    String name = v.name;
-	    for(int i = 0; i < adjList.length; i++){
+	    for(int i = 0; i < adjList.length; i++){ //Find vertex in adjacency list
 	        if(adjList[i].get(0).equals(name)){
-	            for(int x = 1; x < adjList[i].size(); x++){
+	            for(int x = 1; x < adjList[i].size(); x++){ //Go through all neighbors of origin vetex
 	            	int index = getArraylistIndex(adjList[i].get(x));
 	                if(vertexObjects.get(index).visited == false) {
                         vertexObjects.get(index).prev = v;
                         q.add(vertexObjects.get(index));
+                        if(vertexObjects.get(index).name.equals(end))
+                        	return vertexObjects.get(index);
                     }
                 }
             }
         }
+        return null;
     }
 
     private int getArraylistIndex(String name){
@@ -148,10 +155,9 @@ public class NetworkInfluence
 	{
 	    ArrayList<String> path = new ArrayList<String>();
         Queue<Vertex> queue = new LinkedList<Vertex>();
-	    if(vertices.contains(u)){
+	    if(vertices.contains(u) && vertices.contains(v)){
 	        int index = getArraylistIndex(u);
 	        vertexObjects.get(index).visited = true;
-	     //objectPath.add(vertexObjects.get(index));
             queue.add(vertexObjects.get(index));
             Vertex cur = null;
             while(queue.peek() != null){
@@ -160,7 +166,9 @@ public class NetworkInfluence
                     break;
                 }
                 cur.visited = true;
-                addNearbyElementsToQueue(cur, queue);
+                cur = addNearbyElementsToQueue(cur, queue, v);
+                if(cur != null)
+                	break;
             }
             while(cur != null){
                 path.add(0, cur.name);
