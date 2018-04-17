@@ -13,6 +13,7 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -198,22 +199,9 @@ public class NetworkInfluence
 		return max;
 	}
 
-	private int getSetSizeOfSameDistVert(String u, int dist){
+	private float getSetSizeOfSameDistVert(ArrayList<String> list, int dist){
 		if(dist == 0)
-			return 0;
-		else{
-			int count = 0;
-			for(Vertex vert : vertexObjects){
-				if(distance(u, vert.name) == dist)
-					count++;
-			}
-			return count;
-		}
-	}
-
-	private int getSetSizeOfSameDistVert(ArrayList<String> list, int dist){
-		if(dist == 0)
-			return 0;
+			return list.size();
 		else{
 			int count = 0;
 			for(Vertex vert : vertexObjects){
@@ -227,8 +215,9 @@ public class NetworkInfluence
 	public float influence(String u)
 	{
 		float inf = 0;
+		ArrayList<String> oneElt = new ArrayList<String>(); oneElt.add(u);
 		for(int i = 0; i < numVert; i++){
-			inf += (1 / (Math.pow(2, i))) * getSetSizeOfSameDistVert(u, i);
+			inf += (1.f / (Math.pow(2, i))) * getSetSizeOfSameDistVert(oneElt, i);
 		}
 		return inf;
 	}
@@ -405,21 +394,5 @@ public class NetworkInfluence
 	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
 		return null;
-	}
-	public static void main(String[] args) {
-		ArrayList<String> a = new ArrayList<String>();
-		a.add("okay");
-		a.add("k");
-		a.add("bb");
-		a.add("ok");
-		a.add("okayyyyyyy");
-		a.add("nerd");
-		a.add("wut");
-		
-		a.subList(3, a.size()).clear();
-		for(int i = 0; i < a.size(); i++)
-		{
-			System.out.println(a.get(i));
-		}
 	}
 }
