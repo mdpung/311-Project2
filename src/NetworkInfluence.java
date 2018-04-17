@@ -124,6 +124,7 @@ public class NetworkInfluence
 
 	public float influence(String u)
 	{
+		for(int i = 0; i < )
 		return -1f;
 	}
 
