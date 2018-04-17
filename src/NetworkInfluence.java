@@ -198,22 +198,11 @@ public class NetworkInfluence
 		return max;
 	}
 
-	private int getSetSizeOfSameDistVert(String u, int dist){
-		if(dist == 0)
-			return 0;
-		else{
-			int count = 0;
-			for(Vertex vert : vertexObjects){
-				if(distance(u, vert.name) == dist)
-					count++;
-			}
-			return count;
-		}
-	}
+	
 
 	private int getSetSizeOfSameDistVert(ArrayList<String> list, int dist){
 		if(dist == 0)
-			return 0;
+			return list.size();
 		else{
 			int count = 0;
 			for(Vertex vert : vertexObjects){
@@ -227,10 +216,11 @@ public class NetworkInfluence
 	public float influence(String u)
 	{
 		float inf = 0;
-		for(int i = 0; i < numVert; i++){
-			inf += (1 / (Math.pow(2, i))) * getSetSizeOfSameDistVert(u, i);
-		}
-		return inf;
+        ArrayList<String> oneElt = new ArrayList<String>(); oneElt.add(u);
+        for(int i = 0; i < numVert; i++){
+            inf += (1.f / (Math.pow(2, i))) * getSetSizeOfSameDistVert(oneElt, i);
+        }
+        return inf;
 	}
 
 	public float influence(ArrayList<String> s)
