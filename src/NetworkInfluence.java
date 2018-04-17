@@ -348,17 +348,17 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialModular(int k)
 	{
-		ArrayList<String> topDegreeNodes = new ArrayList<String>();
-		topDegreeNodes.add(vertexObjects.get(0).name);
+		ArrayList<String> topInfluenceNodes = new ArrayList<String>();
+		topInfluenceNodes.add(vertexObjects.get(0).name);
 		String vertex1Name = vertexObjects.get(1).name;
 		
-		if(influence(vertex1Name) > influence(topDegreeNodes.get(0)))
+		if(influence(vertex1Name) > influence(topInfluenceNodes.get(0)))
 		{
-			topDegreeNodes.add(0, vertex1Name);
+			topInfluenceNodes.add(0, vertex1Name);
 		}
 		else
 		{
-			topDegreeNodes.add(vertex1Name);
+			topInfluenceNodes.add(vertex1Name);
 		}
 		
 		
@@ -367,37 +367,69 @@ public class NetworkInfluence
 			int j = 0;
 			String vertex = vertexObjects.get(i).name;
 			float newDegree = influence(vertex);
-			float oldDegree = influence(topDegreeNodes.get(j));
+			float oldDegree = influence(topInfluenceNodes.get(j));
 			
-			if(newDegree > influence(topDegreeNodes.get(0)))
+			if(newDegree > influence(topInfluenceNodes.get(0)))
 			{
-				topDegreeNodes.add(0, vertexObjects.get(i).name);
+				topInfluenceNodes.add(0, vertexObjects.get(i).name);
 			}
 			else
 			{
-				while(j < topDegreeNodes.size() && newDegree < oldDegree)
+				while(j < topInfluenceNodes.size() && newDegree < oldDegree)
 				{
 					j++;
 				}
-				if(j == topDegreeNodes.size())
+				if(j == topInfluenceNodes.size())
 				{
-					topDegreeNodes.add(vertex);
+					topInfluenceNodes.add(vertex);
 				}
 				else
 				{
-					topDegreeNodes.add(j, vertex);
+					topInfluenceNodes.add(j, vertex);
 				}	
 			}	
 		}
 		
-		topDegreeNodes.subList(k, topDegreeNodes.size()).clear();
-		return topDegreeNodes;
+		topInfluenceNodes.subList(k, topInfluenceNodes.size()).clear();
+		return topInfluenceNodes;
 	}
 
 	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
+		ArrayList<String> topInfluenceSet = new ArrayList<String>();
+		ArrayList<Vertex> nodes = vertexObjects;
+		
+		for(int i = 0; i < k; i++)
+		{
+			String vertexV = nodes.get(i).name;
+			int count = 0;
+			ArrayList<String> verticies1 = topInfluenceSet;
+			verticies1.add(vertexV);
+			
+			for(int j = 0; j < nodes.size(); i++)
+			{
+				String vertexU = nodes.get(j).name;
+				
+				ArrayList<String> verticies2 = topInfluenceSet;
+				verticies2.add(vertexU);
+				float infV = influence(verticies1);
+				float infU = influence(verticies2);
+				
+				if(infV >= infU)
+				{
+					count++;
+				}
+			}
+			if(count == nodes.size())
+			{
+				topInfluenceSet.add(vertexV);
+				nodes.remove(i);
+			}
+		}
+		
 		return null;
 	}
+	
 	public static void main(String[] args) {
 		ArrayList<String> a = new ArrayList<String>();
 		a.add("okay");
