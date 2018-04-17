@@ -244,16 +244,182 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialDegree(int k)
 	{
-		return null;
+//		ArrayList<Vertex> topDegreeNodes = new ArrayList<Vertex>(k);
+//		for(int i = 0; i < vertexObjects.size(); i++)
+//		{
+//			Vertex vertex = vertexObjects.get(i);
+//			int newOutDegree = outDegree(vertex.name);
+//			int oldOutDegree = 0;
+//			int j = 0;
+//			if(!(topDegreeNodes.isEmpty()))
+//			{
+//				oldOutDegree = outDegree(topDegreeNodes.get(0).name);
+//			}
+//			
+//			if(i < k)
+//			{
+//				//Add first Element to array
+//				if(topDegreeNodes.isEmpty())
+//				{
+//					topDegreeNodes.add(vertex);
+//				}
+//				//See if second Element is greater or less than the first and put after/before respectively
+//				else if(topDegreeNodes.size() == 1)
+//				{
+//					if(newOutDegree > outDegree(topDegreeNodes.get(0).name))
+//					{
+//						topDegreeNodes.add(vertex);
+//					}
+//					else
+//					{
+//						topDegreeNodes.add(0, vertex);
+//					}
+//				}
+//				//puts remaining elements in the arraylist in order of least to greatest outDegrees
+//				else
+//				{
+//				
+//					
+//				}
+//				
+//			}
+//			else
+//			{
+//				
+//				if(newOutDegree > oldOutDegree)
+//				{
+//					
+//					while(j < topDegreeNodes.size() && newOutDegree > outDegree(topDegreeNodes.get(j).name))
+//					{
+//						j++;
+//					}
+//					if(j == topDegreeNodes.size())
+//					{
+//						topDegreeNodes.add(vertex);
+//					}
+//					else
+//					{
+//						topDegreeNodes.add(j, vertex);
+//					}
+//					topDegreeNodes.remove(0);
+//				}
+//			}
+//		}
+		
+		//can it be done this way???
+		ArrayList<String> topDegreeNodes = new ArrayList<String>();
+		topDegreeNodes.add(vertexObjects.get(0).name);
+		String vertex1Name = vertexObjects.get(1).name;
+		
+		if(outDegree(vertex1Name) > outDegree(topDegreeNodes.get(0)))
+		{
+			topDegreeNodes.add(0, vertex1Name);
+		}
+		else
+		{
+			topDegreeNodes.add(vertex1Name);
+		}
+		
+		
+		for(int i = 2; i < vertexObjects.size(); i++)
+		{
+			int j = 0;
+			String vertex = vertexObjects.get(i).name;
+			int newDegree = outDegree(vertex);
+			int oldDegree = outDegree(topDegreeNodes.get(j));
+			
+			if(newDegree > outDegree(topDegreeNodes.get(0)))
+			{
+				topDegreeNodes.add(0, vertexObjects.get(i).name);
+			}
+			else
+			{
+				while(j < topDegreeNodes.size() && newDegree < oldDegree)
+				{
+					j++;
+				}
+				if(j == topDegreeNodes.size())
+				{
+					topDegreeNodes.add(vertex);
+				}
+				else
+				{
+					topDegreeNodes.add(j, vertex);
+				}	
+			}	
+		}
+		
+		topDegreeNodes.subList(k, topDegreeNodes.size()).clear();
+		return topDegreeNodes;
 	}
+	
 
 	public ArrayList<String> mostInfluentialModular(int k)
 	{
-		return null;
+		ArrayList<String> topDegreeNodes = new ArrayList<String>();
+		topDegreeNodes.add(vertexObjects.get(0).name);
+		String vertex1Name = vertexObjects.get(1).name;
+		
+		if(influence(vertex1Name) > influence(topDegreeNodes.get(0)))
+		{
+			topDegreeNodes.add(0, vertex1Name);
+		}
+		else
+		{
+			topDegreeNodes.add(vertex1Name);
+		}
+		
+		
+		for(int i = 2; i < vertexObjects.size(); i++)
+		{
+			int j = 0;
+			String vertex = vertexObjects.get(i).name;
+			float newDegree = influence(vertex);
+			float oldDegree = influence(topDegreeNodes.get(j));
+			
+			if(newDegree > influence(topDegreeNodes.get(0)))
+			{
+				topDegreeNodes.add(0, vertexObjects.get(i).name);
+			}
+			else
+			{
+				while(j < topDegreeNodes.size() && newDegree < oldDegree)
+				{
+					j++;
+				}
+				if(j == topDegreeNodes.size())
+				{
+					topDegreeNodes.add(vertex);
+				}
+				else
+				{
+					topDegreeNodes.add(j, vertex);
+				}	
+			}	
+		}
+		
+		topDegreeNodes.subList(k, topDegreeNodes.size()).clear();
+		return topDegreeNodes;
 	}
 
 	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
 		return null;
+	}
+	public static void main(String[] args) {
+		ArrayList<String> a = new ArrayList<String>();
+		a.add("okay");
+		a.add("k");
+		a.add("bb");
+		a.add("ok");
+		a.add("okayyyyyyy");
+		a.add("nerd");
+		a.add("wut");
+		
+		a.subList(3, a.size()).clear();
+		for(int i = 0; i < a.size(); i++)
+		{
+			System.out.println(a.get(i));
+		}
 	}
 }
