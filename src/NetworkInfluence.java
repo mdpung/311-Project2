@@ -124,7 +124,7 @@ public class NetworkInfluence
 	    String name = v.name;
 	    for(int i = 0; i < adjList.length; i++){ //Find vertex in adjacency list
 	        if(adjList[i].get(0).equals(name)){
-	            for(int x = 1; x < adjList[i].size(); x++){ //Go through all neighbors of origin vetex
+	            for(int x = 1; x < adjList[i].size(); x++){ //Go through all neighbors of origin vertex
 	            	int index = getArraylistIndex(adjList[i].get(x));
 	                if(vertexObjects.get(index).visited == false) {
                         vertexObjects.get(index).prev = v;
@@ -144,6 +144,13 @@ public class NetworkInfluence
 				return i;
 		}
 		return -1;
+	}
+
+	private void resetVisitedValues(){
+    	for(int i = 0; i < vertexObjects.size(); i++){
+    		vertexObjects.get(i).visited = false;
+    		vertexObjects.get(i).prev = null;
+		}
 	}
 
     /**
@@ -175,6 +182,7 @@ public class NetworkInfluence
                 path.add(0, cur.name);
                 cur = cur.prev;
             }
+            resetVisitedValues();
             return path;
         }
         else{
@@ -184,19 +192,24 @@ public class NetworkInfluence
 
 	public int distance(String u, String v)
 	{
-		return shortestPath(u,v).size();
+		if(u.equals(v))
+			return 0;
+		int pathLength = shortestPath(u,v).size();
+		return 	pathLength - 1;
 	}
 
 	public int distance(ArrayList<String> s, String v)
 	{
-		int max = 0;
+		int min = 99999;
 		for(String u : s){
 			int dist = distance(u, v);
-			if(dist > max){
-				max = dist;
+			if(dist == -1)
+				continue;
+			if(dist < min){
+				min = dist;
 			}
 		}
-		return max;
+		return min;
 	}
 
 	private float getSetSizeOfSameDistVert(ArrayList<String> list, int dist){
@@ -226,7 +239,7 @@ public class NetworkInfluence
 	{
 		float inf = 0;
 		for(int i = 0; i < numVert; i++){
-			inf += (1 / (Math.pow(2, i))) * getSetSizeOfSameDistVert(s, i);
+			inf += (1 / ((Math.pow(2, i))) * getSetSizeOfSameDistVert(s, i));
 		}
 		return inf;
 	}
@@ -393,6 +406,37 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
-		return null;
+		ArrayList<String> topInfluenceSet = new ArrayList<String>();
+		ArrayList<Vertex> nodes = vertexObjects;
+
+		for(int i = 0; i < k; i++)
+		{
+			String vertexV = nodes.get(i).name;
+			int count = 0;
+			ArrayList<String> verticies1 = topInfluenceSet;
+			verticies1.add(vertexV);
+
+			for(int j = 0; j < nodes.size(); i++)
+			{
+				String vertexU = nodes.get(j).name;
+
+				ArrayList<String> verticies2 = topInfluenceSet;
+				verticies2.add(vertexU);
+				float infV = influence(verticies1);
+				float infU = influence(verticies2);
+
+				if(infV >= infU)
+				{
+					count++;
+				}
+			}
+			if(count == nodes.size())
+			{
+				topInfluenceSet.add(vertexV);
+				nodes.remove(i);
+			}
+		}
+
+		return topInfluenceSet;
 	}
 }
