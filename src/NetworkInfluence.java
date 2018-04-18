@@ -13,7 +13,6 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -27,14 +26,9 @@ public class NetworkInfluence
 	public ArrayList<String> edges;
 
 	/**
-	 * adjacency Matrix implemented as 2d int array
-	 */
-	private int[][] adjMatrix;
-
-	/**
 	 * Array of LinkedLists. 1st element in each list is the 'origin' vertex, followed by its neighbors
 	 */
-	public LinkedList<String>[] adjList;
+	public LinkedList<Vertex>[] adjList;
 
 	/**
 	 * ArrayList of all vertices in the web graph
@@ -62,7 +56,6 @@ public class NetworkInfluence
 		}
 		initVertices();
 		initAdjacencyList();
-		initMatrix();
 	}
 
 	private void initVertices(){
@@ -81,11 +74,11 @@ public class NetworkInfluence
 
 	private void initAdjacencyList(){
 		adjList = new LinkedList[numVert];
-		for(int i = 0; i < adjList.length; i++){
-		    adjList[i] = new LinkedList<String>();
+		for(int i = 0; i < adjList.length; i++){ //Init Linked Lists
+		    adjList[i] = new LinkedList<Vertex>();
         }
-		for(int i = 0; i < adjList.length; i++){
-			adjList[i].add(vertices.get(i));
+		for(int i = 0; i < adjList.length; i++){ //Add First element to each list
+			adjList[i].add(vertexObjects.get(i));
 		}
 		for(int i = 0; i < edges.size(); i+=2){
 			String origin = edges.get(i);
@@ -96,24 +89,20 @@ public class NetworkInfluence
 
 	private void addPairToList(String origin, String neighbor){
 		for(int i = 0; i < adjList.length; i++){
-			if(adjList[i].get(0).equals(origin)){
-				adjList[i].add(neighbor);
+			if(adjList[i].get(0).name.equals(origin)){
+				int index = getVertexIndex(neighbor); //get index of vertex object
+				adjList[i].add(vertexObjects.get(index));
 				break;
 			}
 		}
 	}
 
-	/**
-	 * Initializes the adjacency matrix
-	 */
-	private void initMatrix(){
-		adjMatrix = new int[numVert][numVert];
-	}
+
 
 	public int outDegree(String v)
 	{
 		for(int i = 0; i < adjList.length; i++){
-			if(adjList[i].get(0).equals(v)){
+			if(adjList[i].get(0).name.equals(v)){
 				return adjList[i].size() - 1; // Subtract the 'Origin' vertex and only get neighbors
 			}
 		}
@@ -123,14 +112,14 @@ public class NetworkInfluence
 	private Vertex addNearbyElementsToQueue(Vertex v, Queue<Vertex> q, String end){
 	    String name = v.name;
 	    for(int i = 0; i < adjList.length; i++){ //Find vertex in adjacency list
-	        if(adjList[i].get(0).equals(name)){
+	        if(adjList[i].get(0).name.equals(name)){
 	            for(int x = 1; x < adjList[i].size(); x++){ //Go through all neighbors of origin vertex
-	            	int index = getArraylistIndex(adjList[i].get(x));
-	                if(vertexObjects.get(index).visited == false) {
-                        vertexObjects.get(index).prev = v;
-                        q.add(vertexObjects.get(index));
-                        if(vertexObjects.get(index).name.equals(end))
-                        	return vertexObjects.get(index);
+					Vertex neighbor = adjList[i].get(x);
+	                if(neighbor.visited == false) {
+						neighbor.prev = v;
+                        q.add(neighbor);
+                        if(neighbor.name.equals(end))
+                        	return neighbor;
                     }
                 }
             }
@@ -138,7 +127,7 @@ public class NetworkInfluence
         return null;
     }
 
-    private int getArraylistIndex(String name){
+    private int getVertexIndex(String name){
 		for(int i = 0; i < vertexObjects.size(); i++){
 			if(vertexObjects.get(i).name.equals(name))
 				return i;
@@ -162,19 +151,15 @@ public class NetworkInfluence
 	public ArrayList<String> shortestPath(String u, String v)
 	{
 	    ArrayList<String> path = new ArrayList<String>();
-        Queue<Vertex> queue = new LinkedList<Vertex>();
 	    if(vertices.contains(u) && vertices.contains(v)){
-	        int index = getArraylistIndex(u);
-	        vertexObjects.get(index).visited = true;
+			Queue<Vertex> queue = new LinkedList<Vertex>();
+	        int index = getVertexIndex(u);
             queue.add(vertexObjects.get(index));
             Vertex cur = null;
             while(queue.peek() != null){
                 cur = queue.poll();
-                if(cur.name.equals(v)){
-                    break;
-                }
                 cur.visited = true;
-                cur = addNearbyElementsToQueue(cur, queue, v);
+                cur = addNearbyElementsToQueue(cur, queue, v); //if end node found, will return a vertex, null if not found
                 if(cur != null)
                 	break;
             }
@@ -246,67 +231,6 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialDegree(int k)
 	{
-//		ArrayList<Vertex> topDegreeNodes = new ArrayList<Vertex>(k);
-//		for(int i = 0; i < vertexObjects.size(); i++)
-//		{
-//			Vertex vertex = vertexObjects.get(i);
-//			int newOutDegree = outDegree(vertex.name);
-//			int oldOutDegree = 0;
-//			int j = 0;
-//			if(!(topDegreeNodes.isEmpty()))
-//			{
-//				oldOutDegree = outDegree(topDegreeNodes.get(0).name);
-//			}
-//			
-//			if(i < k)
-//			{
-//				//Add first Element to array
-//				if(topDegreeNodes.isEmpty())
-//				{
-//					topDegreeNodes.add(vertex);
-//				}
-//				//See if second Element is greater or less than the first and put after/before respectively
-//				else if(topDegreeNodes.size() == 1)
-//				{
-//					if(newOutDegree > outDegree(topDegreeNodes.get(0).name))
-//					{
-//						topDegreeNodes.add(vertex);
-//					}
-//					else
-//					{
-//						topDegreeNodes.add(0, vertex);
-//					}
-//				}
-//				//puts remaining elements in the arraylist in order of least to greatest outDegrees
-//				else
-//				{
-//				
-//					
-//				}
-//				
-//			}
-//			else
-//			{
-//				
-//				if(newOutDegree > oldOutDegree)
-//				{
-//					
-//					while(j < topDegreeNodes.size() && newOutDegree > outDegree(topDegreeNodes.get(j).name))
-//					{
-//						j++;
-//					}
-//					if(j == topDegreeNodes.size())
-//					{
-//						topDegreeNodes.add(vertex);
-//					}
-//					else
-//					{
-//						topDegreeNodes.add(j, vertex);
-//					}
-//					topDegreeNodes.remove(0);
-//				}
-//			}
-//		}
 		
 		//can it be done this way???
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
