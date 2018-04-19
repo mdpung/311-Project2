@@ -12,6 +12,9 @@ public class NetworkInfluenceTest2 {
 	public NetworkInfluenceTest2() throws FileNotFoundException {
 	}
 
+	public NetworkInfluenceTest2() throws FileNotFoundException {
+    }
+	
 	@Test
 	public void testOutDegree() {		
 		int outDegree_A = ni.outDegree("A");
