@@ -126,6 +126,8 @@ public class NetworkInfluence
 	{
 	    ArrayList<String> path = new ArrayList<String>();
 	    if(vertices.contains(u) && vertices.contains(v)){
+	    	if(u.equals(v))
+	    		return new ArrayList<String>();
 			Queue<Vertex> queue = new LinkedList<Vertex>();
             queue.add(vertexObjects.get(u));
             Vertex cur = null;
@@ -167,6 +169,8 @@ public class NetworkInfluence
 				min = dist;
 			}
 		}
+		if(min == 99999)
+			return -1;
 		return min;
 	}
 
