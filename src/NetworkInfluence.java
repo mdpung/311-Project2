@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 //hi
-public class NetworkInfluence
+public class NetworkInfluence 
 {
 	/**
 	 * String array alternating origin vertex followed by vertex it shares an edge with.
@@ -42,18 +42,24 @@ public class NetworkInfluence
 	 * Number of vertices in the Web Graph
 	 */
 	public int numVert;
-
+	
+	
 	// NOTE: graphData is an absolute file path that contains graph data, NOT the raw graph data itself
-	public NetworkInfluence(String graphData) throws FileNotFoundException {
-		File f = new File(graphData);
-		Scanner s = new Scanner(f);
-		numVert = s.nextInt();
-		edges = new ArrayList<String>();
-		while(s.hasNext()){
-			edges.add(s.next());
+	public NetworkInfluence(String graphData) {
+		try{
+			File f = new File(graphData);
+			Scanner s = new Scanner(f);
+			numVert = s.nextInt();
+			edges = new ArrayList<String>();
+			while(s.hasNext()){
+				edges.add(s.next());
+			}
+			initVertices();
+			initAdjacencyList();
 		}
-		initVertices();
-		initAdjacencyList();
+		catch(Exception e){
+			
+		}
 	}
 
 	private void initVertices(){
@@ -146,6 +152,7 @@ public class NetworkInfluence
      * @param v
      * @return ArrayList of Strings.
      */
+	//TODO
 	public ArrayList<String> shortestPath(String u, String v)
 	{
 	    ArrayList<String> path = new ArrayList<String>();
@@ -360,5 +367,9 @@ public class NetworkInfluence
 		}
 
 		return topInfluenceSet;
+	}
+	
+	public static void main(String[] args) {
+		
 	}
 }
