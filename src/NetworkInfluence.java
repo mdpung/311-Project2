@@ -13,10 +13,8 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
+
 //hi
 public class NetworkInfluence
 {
@@ -38,7 +36,7 @@ public class NetworkInfluence
 	/**
 	 * ArrayList of all vertices in graph represented as VERTEX Objects
 	 */
-	public ArrayList<Vertex> vertexObjects;
+	public HashMap<Vertex, LinkedList<Vertex>> vertexObjects;
 
 	/**
 	 * Number of vertices in the Web Graph
@@ -60,7 +58,7 @@ public class NetworkInfluence
 
 	private void initVertices(){
 		vertices = new ArrayList<String>();
-		vertexObjects = new ArrayList<>();
+		vertexObjects = new HashMap<>();
 		for(int i = 0; i < edges.size(); i++){
 			if(!vertices.contains(edges.get(i))){
 				vertices.add(edges.get(i));
