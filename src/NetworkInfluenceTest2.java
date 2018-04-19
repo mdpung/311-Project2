@@ -7,10 +7,8 @@ import org.junit.Test;
 
 public class NetworkInfluenceTest2 {
 
-	NetworkInfluence ni = new NetworkInfluence("C:\\Users\\jeffy\\IdeaProjects\\311-Project2\\src\\inftest.txt");
+	NetworkInfluence ni = new NetworkInfluence("C://Users//Justin//Desktop//311-Project2//src//inftest.txt");
 
-	public NetworkInfluenceTest2() throws FileNotFoundException {
-	}
 
 	public NetworkInfluenceTest2() throws FileNotFoundException {
     }
