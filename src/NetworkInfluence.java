@@ -126,8 +126,10 @@ public class NetworkInfluence
 	{
 	    ArrayList<String> path = new ArrayList<String>();
 	    if(vertices.contains(u) && vertices.contains(v)){
-	    	if(u.equals(v))
-	    		return new ArrayList<String>();
+	    	if(u.equals(v)){
+	    		path.add(u); path.add(u);
+	    		return path;
+			}
 			Queue<Vertex> queue = new LinkedList<Vertex>();
             queue.add(vertexObjects.get(u));
             Vertex cur = null;

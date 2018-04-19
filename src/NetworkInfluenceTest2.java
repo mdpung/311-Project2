@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -6,7 +7,10 @@ import org.junit.Test;
 
 public class NetworkInfluenceTest2 {
 
-	NetworkInfluence ni = new NetworkInfluence("C:/Users/Justin/Desktop/311-Project2/src/inftest.txt");
+	NetworkInfluence ni = new NetworkInfluence("C:\\Users\\jeffy\\IdeaProjects\\311-Project2\\src\\inftest.txt");
+
+	public NetworkInfluenceTest2() throws FileNotFoundException {
+	}
 
 	@Test
 	public void testOutDegree() {		
@@ -108,7 +112,7 @@ public class NetworkInfluenceTest2 {
 	@Test
 	public void testMostInfluentialModular() {
 		ArrayList<String> most = ni.mostInfluentialModular(3);
-		Assert.assertEquals(most,new ArrayList<String>(Arrays.asList(new String[] {"A","B","E"})));
+		Assert.assertEquals(new ArrayList<String>(Arrays.asList(new String[] {"A","B","E"})), most);
 		//Your output array may be in a different order
 	}
 
