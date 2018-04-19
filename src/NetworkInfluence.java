@@ -306,7 +306,7 @@ public class NetworkInfluence
 		return topDegreeNodes;
 	}
 
-	/*public ArrayList<String> mostInfluentialSubModular(int k)
+	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
 		ArrayList<String> topInfluenceSet = new ArrayList<String>();
 		ArrayList<Vertex> nodes = vertexObjects;
@@ -340,5 +340,5 @@ public class NetworkInfluence
 		}
 
 		return topInfluenceSet;
-	}*/
+	}
 }

@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class NetworkInfluenceTest2 {
-	
+
 	NetworkInfluence ni = new NetworkInfluence("C:/Users/Justin/Desktop/311-Project2/src/inftest.txt");
 
 	@Test
@@ -111,6 +111,7 @@ public class NetworkInfluenceTest2 {
 		Assert.assertEquals(most,new ArrayList<String>(Arrays.asList(new String[] {"A","B","E"})));
 		//Your output array may be in a different order
 	}
+
 
 	@Test
 	public void testMostInfluentialSubModular() {
