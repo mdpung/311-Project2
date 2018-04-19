@@ -212,8 +212,8 @@ public class NetworkInfluence
 
 		//can it be done this way???
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
-		topDegreeNodes.add(vertexObjects.get(0).name);
-		String vertex1Name = vertexObjects.get(1).name;
+		topDegreeNodes.add(vertices.get(0));
+		String vertex1Name = vertices.get(1);
 		
 		if(outDegree(vertex1Name) > outDegree(topDegreeNodes.get(0)))
 		{
@@ -225,16 +225,16 @@ public class NetworkInfluence
 		}
 		
 		
-		for(int i = 2; i < vertexObjects.size(); i++)
+		for(int i = 2; i < vertices.size(); i++)
 		{
 			int j = 0;
-			String vertex = vertexObjects.get(i).name;
+			String vertex = vertices.get(i);
 			int newDegree = outDegree(vertex);
 			int oldDegree = outDegree(topDegreeNodes.get(j));
 			
 			if(newDegree > outDegree(topDegreeNodes.get(0)))
 			{
-				topDegreeNodes.add(0, vertexObjects.get(i).name);
+				topDegreeNodes.add(0, vertices.get(i));
 			}
 			else
 			{
@@ -261,8 +261,8 @@ public class NetworkInfluence
 	public ArrayList<String> mostInfluentialModular(int k)
 	{
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
-		topDegreeNodes.add(vertexObjects.get(0).name);
-		String vertex1Name = vertexObjects.get(1).name;
+		topDegreeNodes.add(vertices.get(0));
+		String vertex1Name = vertices.get(1);
 		
 		if(influence(vertex1Name) > influence(topDegreeNodes.get(0)))
 		{
@@ -274,16 +274,16 @@ public class NetworkInfluence
 		}
 		
 		
-		for(int i = 2; i < vertexObjects.size(); i++)
+		for(int i = 2; i < vertices.size(); i++)
 		{
 			int j = 0;
-			String vertex = vertexObjects.get(i).name;
+			String vertex = vertices.get(i);
 			float newDegree = influence(vertex);
 			float oldDegree = influence(topDegreeNodes.get(j));
 			
 			if(newDegree > influence(topDegreeNodes.get(0)))
 			{
-				topDegreeNodes.add(0, vertexObjects.get(i).name);
+				topDegreeNodes.add(0, vertices.get(i));
 			}
 			else
 			{
@@ -306,21 +306,21 @@ public class NetworkInfluence
 		return topDegreeNodes;
 	}
 
-	/*public ArrayList<String> mostInfluentialSubModular(int k)
+	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
 		ArrayList<String> topInfluenceSet = new ArrayList<String>();
-		ArrayList<Vertex> nodes = vertexObjects;
+		ArrayList<String> nodes = vertices;
 
 		for(int i = 0; i < k; i++)
 		{
-			String vertexV = nodes.get(i).name;
+			String vertexV = nodes.get(i);
 			int count = 0;
 			ArrayList<String> verticies1 = topInfluenceSet;
 			verticies1.add(vertexV);
 
 			for(int j = 0; j < nodes.size(); i++)
 			{
-				String vertexU = nodes.get(j).name;
+				String vertexU = nodes.get(j);
 
 				ArrayList<String> verticies2 = topInfluenceSet;
 				verticies2.add(vertexU);
@@ -340,5 +340,5 @@ public class NetworkInfluence
 		}
 
 		return topInfluenceSet;
-	}*/
+	}
 }
