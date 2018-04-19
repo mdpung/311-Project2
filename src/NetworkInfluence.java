@@ -22,6 +22,27 @@ public class NetworkInfluence
 	 * String array alternating origin vertex followed by vertex it shares an edge with.
 	 */
 	public ArrayList<String> edges;
+	
+	private Comparator<String> c = new Comparator<String>(){
+
+		@Override
+		public int compare(String arg0, String arg1) {
+			
+			if(influence(arg0) > influence(arg1))
+			{
+				return -1;
+			}
+			else if(influence(arg0) == influence(arg1))
+			{
+				return 0;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+		
+	};
 
 	/**
 	 * ArrayList of all vertices in the web graph
@@ -240,18 +261,9 @@ public class NetworkInfluence
 			}
 			else
 			{
-				while(j < topDegreeNodes.size() && newDegree < oldDegree)
-				{
-					j++;
-				}
-				if(j == topDegreeNodes.size())
-				{
-					topDegreeNodes.add(vertex);
-				}
-				else
-				{
-					topDegreeNodes.add(j, vertex);
-				}	
+				topDegreeNodes.add(vertex);
+				
+				topDegreeNodes.sort(c);
 			}	
 		}
 		
@@ -262,7 +274,11 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialModular(int k)
 	{
+		
+		
+		
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
+		
 		topDegreeNodes.add(vertices.get(0));
 		String vertex1Name = vertices.get(1);
 		
@@ -289,22 +305,9 @@ public class NetworkInfluence
 			}
 			else
 			{
-				while(j < topDegreeNodes.size() && newDegree < oldDegree)
-				{
-					j++;
-					if(j < topDegreeNodes.size())
-					{
-						oldDegree = influence(topDegreeNodes.get(j));
-					}
-				}
-				if(j == topDegreeNodes.size())
-				{
-					topDegreeNodes.add(vertex);
-				}
-				else
-				{
-					topDegreeNodes.add(j, vertex);
-				}	
+				topDegreeNodes.add(vertex);
+				
+				topDegreeNodes.sort(c);
 			}	
 		}
 		
@@ -315,7 +318,8 @@ public class NetworkInfluence
 	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
 		ArrayList<String> topInfluenceSet = new ArrayList<String>();
-		ArrayList<String> nodes = vertices;
+		ArrayList<String> nodes = new ArrayList<String>();
+		nodes.addAll(vertices);
 
 		for(int i = 0; i < nodes.size(); i++)
 		{
