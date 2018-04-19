@@ -231,7 +231,7 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialDegree(int k)
 	{
-		
+
 		//can it be done this way???
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
 		topDegreeNodes.add(vertexObjects.get(0).name);
