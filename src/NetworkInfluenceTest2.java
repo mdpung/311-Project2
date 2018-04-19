@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -8,6 +9,9 @@ public class NetworkInfluenceTest2 {
 	
 	NetworkInfluence ni = new NetworkInfluence("C:/Users/Justin/Desktop/311-Project2/src/inftest.txt");
 
+	public NetworkInfluenceTest2() throws FileNotFoundException {
+    }
+	
 	@Test
 	public void testOutDegree() {		
 		int outDegree_A = ni.outDegree("A");
