@@ -22,21 +22,40 @@ public class NetworkInfluence
 	 * String array alternating origin vertex followed by vertex it shares an edge with.
 	 */
 	public ArrayList<String> edges;
+	
+	private Comparator<String> c = new Comparator<String>(){
 
-	/**
-	 * Array of LinkedLists. 1st element in each list is the 'origin' vertex, followed by its neighbors
-	 */
-	public LinkedList<Vertex>[] adjList;
+		@Override
+		public int compare(String arg0, String arg1) {
+			
+			if(influence(arg0) > influence(arg1))
+			{
+				return -1;
+			}
+			else if(influence(arg0) == influence(arg1))
+			{
+				return 0;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+		
+	};
 
 	/**
 	 * ArrayList of all vertices in the web graph
 	 */
 	public ArrayList<String> vertices;
 
-	/**
-	 * ArrayList of all vertices in graph represented as VERTEX Objects
-	 */
-	public HashMap<Vertex, LinkedList<Vertex>> vertexObjects;
+	public HashMap<String, LinkedList<Vertex>> adjList;
+
+	public HashMap<String, Vertex> vertexObjects;
+
+	private String lastElt;
+
+	private ArrayList<Integer> distanceValues;
 
 	/**
 	 * Number of vertices in the Web Graph
@@ -54,29 +73,31 @@ public class NetworkInfluence
 		}
 		initVertices();
 		initAdjacencyList();
+		distanceValues = new ArrayList<Integer>();
 	}
 
 	private void initVertices(){
 		vertices = new ArrayList<String>();
-		vertexObjects = new HashMap<>();
+		vertexObjects = new HashMap<String, Vertex>();
 		for(int i = 0; i < edges.size(); i++){
 			if(!vertices.contains(edges.get(i))){
 				vertices.add(edges.get(i));
 			}
 		}
 		for(int i = 0; i < vertices.size(); i++){
-		    vertexObjects.add(new Vertex(vertices.get(i)));
+			vertexObjects.put(vertices.get(i),new Vertex(vertices.get(i)));
         }
         numVert = vertices.size();
 	}
 
 	private void initAdjacencyList(){
-		adjList = new LinkedList[numVert];
-		for(int i = 0; i < adjList.length; i++){ //Init Linked Lists
-		    adjList[i] = new LinkedList<Vertex>();
+		adjList = new HashMap<String, LinkedList<Vertex>>();
+		for(int i = 0; i < vertices.size(); i++){ //Init Linked Lists
+			adjList.put(vertices.get(i) , new LinkedList<Vertex>());
         }
-		for(int i = 0; i < adjList.length; i++){ //Add First element to each list
-			adjList[i].add(vertexObjects.get(i));
+		for(int i = 0; i < vertices.size(); i++){ //Add First element to each list
+			LinkedList<Vertex> list = adjList.get(vertices.get(i));
+			list.add(vertexObjects.get(vertices.get(i))); //hashmap will return the Vertex Object by using the name of the Vertex
 		}
 		for(int i = 0; i < edges.size(); i+=2){
 			String origin = edges.get(i);
@@ -85,58 +106,39 @@ public class NetworkInfluence
 		}
 	}
 
+	//Adds neighbors to adjacency list
 	private void addPairToList(String origin, String neighbor){
-		for(int i = 0; i < adjList.length; i++){
-			if(adjList[i].get(0).name.equals(origin)){
-				int index = getVertexIndex(neighbor); //get index of vertex object
-				adjList[i].add(vertexObjects.get(index));
-				break;
-			}
-		}
+		LinkedList<Vertex> list = adjList.get(origin);  //get list based on origin vertex
+		list.add(vertexObjects.get(neighbor));
 	}
 
 
 
 	public int outDegree(String v)
 	{
-		for(int i = 0; i < adjList.length; i++){
-			if(adjList[i].get(0).name.equals(v)){
-				return adjList[i].size() - 1; // Subtract the 'Origin' vertex and only get neighbors
-			}
-		}
-		return -1;
+		LinkedList<Vertex> list = adjList.get(v);
+		return list.size() - 1;
 	}
 
 	private Vertex addNearbyElementsToQueue(Vertex v, Queue<Vertex> q, String end){
 	    String name = v.name;
-	    for(int i = 0; i < adjList.length; i++){ //Find vertex in adjacency list
-	        if(adjList[i].get(0).name.equals(name)){
-	            for(int x = 1; x < adjList[i].size(); x++){ //Go through all neighbors of origin vertex
-					Vertex neighbor = adjList[i].get(x);
-	                if(neighbor.visited == false) {
-						neighbor.prev = v;
-                        q.add(neighbor);
-                        if(neighbor.name.equals(end))
-                        	return neighbor;
-                    }
-                }
-            }
-        }
-        return null;
+	    LinkedList<Vertex> list = adjList.get(name);
+		for(int x = 1; x < list.size(); x++){ //Go through all neighbors of origin vertex
+			Vertex neighbor = list.get(x);
+			if(neighbor.visited == false) {
+				neighbor.prev = v;
+				q.add(neighbor);
+				if(neighbor.name.equals(end))
+					return neighbor;
+			}
+		}
+		return null;
     }
 
-    private int getVertexIndex(String name){
-		for(int i = 0; i < vertexObjects.size(); i++){
-			if(vertexObjects.get(i).name.equals(name))
-				return i;
-		}
-		return -1;
-	}
-
 	private void resetVisitedValues(){
-    	for(int i = 0; i < vertexObjects.size(); i++){
-    		vertexObjects.get(i).visited = false;
-    		vertexObjects.get(i).prev = null;
+    	for(int i = 0; i < vertices.size(); i++){
+    		vertexObjects.get(vertices.get(i)).visited = false;
+    		vertexObjects.get(vertices.get(i)).prev = null;
 		}
 	}
 
@@ -150,9 +152,12 @@ public class NetworkInfluence
 	{
 	    ArrayList<String> path = new ArrayList<String>();
 	    if(vertices.contains(u) && vertices.contains(v)){
+	    	if(u.equals(v)){
+	    		path.add(u); path.add(u);
+	    		return path;
+			}
 			Queue<Vertex> queue = new LinkedList<Vertex>();
-	        int index = getVertexIndex(u);
-            queue.add(vertexObjects.get(index));
+            queue.add(vertexObjects.get(u));
             Vertex cur = null;
             while(queue.peek() != null){
                 cur = queue.poll();
@@ -192,16 +197,30 @@ public class NetworkInfluence
 				min = dist;
 			}
 		}
+		if(min == 99999)
+			return -1;
 		return min;
 	}
 
+	private void saveDistances(ArrayList<String> list, int dist){ //O(n)
+		if(lastElt == null || !lastElt.equals(list.get(0))){
+			lastElt = list.get(0);
+			distanceValues.clear();
+			for(int i = 0; i < vertices.size(); i++){
+				Vertex v = vertexObjects.get(vertices.get(i));
+				distanceValues.add(distance(list, v.name));
+			}
+		}
+	}
+
 	private float getSetSizeOfSameDistVert(ArrayList<String> list, int dist){
+		saveDistances(list, dist); //O (n) but will only run once or one call to influence, O(n^2 if list has more than 1 elt
 		if(dist == 0)
 			return list.size();
 		else{
 			int count = 0;
-			for(Vertex vert : vertexObjects){
-				if(distance(list, vert.name) == dist)
+			for(int i = 0; i < vertices.size(); i++){ //O(n)
+				if(distanceValues.get(i) == dist)
 					count++;
 			}
 			return count;
@@ -232,8 +251,8 @@ public class NetworkInfluence
 
 		//can it be done this way???
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
-		topDegreeNodes.add(vertexObjects.get(0).name);
-		String vertex1Name = vertexObjects.get(1).name;
+		topDegreeNodes.add(vertices.get(0));
+		String vertex1Name = vertices.get(1);
 		
 		if(outDegree(vertex1Name) > outDegree(topDegreeNodes.get(0)))
 		{
@@ -245,31 +264,22 @@ public class NetworkInfluence
 		}
 		
 		
-		for(int i = 2; i < vertexObjects.size(); i++)
+		for(int i = 2; i < vertices.size(); i++)
 		{
 			int j = 0;
-			String vertex = vertexObjects.get(i).name;
+			String vertex = vertices.get(i);
 			int newDegree = outDegree(vertex);
 			int oldDegree = outDegree(topDegreeNodes.get(j));
 			
 			if(newDegree > outDegree(topDegreeNodes.get(0)))
 			{
-				topDegreeNodes.add(0, vertexObjects.get(i).name);
+				topDegreeNodes.add(0, vertices.get(i));
 			}
 			else
 			{
-				while(j < topDegreeNodes.size() && newDegree < oldDegree)
-				{
-					j++;
-				}
-				if(j == topDegreeNodes.size())
-				{
-					topDegreeNodes.add(vertex);
-				}
-				else
-				{
-					topDegreeNodes.add(j, vertex);
-				}	
+				topDegreeNodes.add(vertex);
+				
+				topDegreeNodes.sort(c);
 			}	
 		}
 		
@@ -280,9 +290,13 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialModular(int k)
 	{
+		
+		
+		
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
-		topDegreeNodes.add(vertexObjects.get(0).name);
-		String vertex1Name = vertexObjects.get(1).name;
+		
+		topDegreeNodes.add(vertices.get(0));
+		String vertex1Name = vertices.get(1);
 		
 		if(influence(vertex1Name) > influence(topDegreeNodes.get(0)))
 		{
@@ -294,31 +308,22 @@ public class NetworkInfluence
 		}
 		
 		
-		for(int i = 2; i < vertexObjects.size(); i++)
+		for(int i = 2; i < vertices.size(); i++)
 		{
 			int j = 0;
-			String vertex = vertexObjects.get(i).name;
+			String vertex = vertices.get(i);
 			float newDegree = influence(vertex);
 			float oldDegree = influence(topDegreeNodes.get(j));
 			
 			if(newDegree > influence(topDegreeNodes.get(0)))
 			{
-				topDegreeNodes.add(0, vertexObjects.get(i).name);
+				topDegreeNodes.add(0, vertices.get(i));
 			}
 			else
 			{
-				while(j < topDegreeNodes.size() && newDegree < oldDegree)
-				{
-					j++;
-				}
-				if(j == topDegreeNodes.size())
-				{
-					topDegreeNodes.add(vertex);
-				}
-				else
-				{
-					topDegreeNodes.add(j, vertex);
-				}	
+				topDegreeNodes.add(vertex);
+				
+				topDegreeNodes.sort(c);
 			}	
 		}
 		
@@ -329,34 +334,38 @@ public class NetworkInfluence
 	public ArrayList<String> mostInfluentialSubModular(int k)
 	{
 		ArrayList<String> topInfluenceSet = new ArrayList<String>();
-		ArrayList<Vertex> nodes = vertexObjects;
+		ArrayList<String> nodes = new ArrayList<String>();
+		nodes.addAll(vertices);
 
-		for(int i = 0; i < k; i++)
+		for(int i = 0; i <= k; i++)
 		{
-			String vertexV = nodes.get(i).name;
+			String vertexV = nodes.get(0);
 			int count = 0;
-			ArrayList<String> verticies1 = topInfluenceSet;
-			verticies1.add(vertexV);
+			ArrayList<String> vertices1 = new ArrayList<String>();
+			vertices1.addAll(topInfluenceSet);
+			vertices1.add(vertexV);
 
-			for(int j = 0; j < nodes.size(); i++)
+			for(int j = 1; j < nodes.size(); j++)
 			{
-				String vertexU = nodes.get(j).name;
+				String vertexU = nodes.get(j);
 
-				ArrayList<String> verticies2 = topInfluenceSet;
-				verticies2.add(vertexU);
-				float infV = influence(verticies1);
-				float infU = influence(verticies2);
+				ArrayList<String> vertices2 = new ArrayList<String>();
+				vertices2.addAll(topInfluenceSet);
+				vertices2.add(vertexU);
+				float infV = influence(vertices1);
+				float infU = influence(vertices2);
 
 				if(infV >= infU)
 				{
 					count++;
 				}
 			}
-			if(count == nodes.size())
+			if(count == nodes.size() - 1)
 			{
 				topInfluenceSet.add(vertexV);
-				nodes.remove(i);
+				
 			}
+			nodes.remove(0);
 		}
 
 		return topInfluenceSet;

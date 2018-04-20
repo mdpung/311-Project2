@@ -32,14 +32,14 @@ public class Tests {
 
     @Test
     public void testInitAdjacenyList(){
-        assertEquals(20, influence.adjList.length);
+        assertEquals(20, influence.adjList.size());
     }
 
     @Test
     public void testOutDegree(){
-        assertEquals(11, influence.outDegree(influence.adjList[0].get(0).name));
-        assertEquals(13, influence.outDegree(influence.adjList[1].get(0).name));
-        assertEquals(10, influence.outDegree(influence.adjList[2].get(0).name));
+        assertEquals(11, influence.outDegree(influence.vertices.get(0)));
+        assertEquals(13, influence.outDegree(influence.vertices.get(1)));
+        assertEquals(10, influence.outDegree(influence.vertices.get(2)));
     }
 
     //ATTENTION I THINK THERE IS A BUG HERE
