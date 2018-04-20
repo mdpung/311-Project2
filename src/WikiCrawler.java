@@ -7,6 +7,7 @@
 // DO NOT INCLUDE LIBRARIES OUTSIDE OF THE JAVA STANDARD LIBRARY
 //  (i.e., you may include java.util.ArrayList etc. here, but not junit, apache commons, google guava, etc.)
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -35,7 +36,7 @@ public class WikiCrawler {
     private int max;
     private ArrayList<String> topics;
     private String fileName, seed;
-    HashMap<String, ArrayList<String>> webGraph;
+    HashMap<String, ArrayList<WebPage>> webGraph;
 
 
     /**
@@ -56,60 +57,43 @@ public class WikiCrawler {
      * file) as parameter. This method should return an array list (of Strings)
      * consisting of links from doc.
      *
-     * @param doc
-     *      HTML code to parse through
-     * @return
-     *      ArrayList of links that the HTML doc contains
+     * @param doc HTML code to parse through
+     * @return ArrayList of links that the HTML doc contains
      */
-    public ArrayList<String> extractLinks(String doc) {
-        boolean afterFirstPTag = false;
-
+    private ArrayList<String> extractLinks(String doc) {
         ArrayList<String> links = new ArrayList<>();
         String line, sub, modifedString;
         Scanner sc, s;
         sc = new Scanner(doc);
-
-        //Reads entire document
-        while (sc.hasNext()) {
+        while (sc.hasNextLine()) {
             line = sc.nextLine();
 
-            //Makes sure we are after the first <p>
-            if (!afterFirstPTag && line.contains(P_TAG))
-                afterFirstPTag = true;
+            s = new Scanner(line);
 
-            if (afterFirstPTag) {
+            //Scans each substring of line for <a
+            while (s.hasNext()) {
+                sub = s.next();
+                //If <a then our href is in this substring
+                if (sub.contains(A_TAG)) {
 
-                s = new Scanner(line);
+                    while (s.hasNext()) {
+                        sub = s.next();
+                        if (sub.length() > 6) {
+                            if (sub.substring(0, 6).equals("href=\"")) {
+                                modifedString = modifyString(sub);
 
-                //Scans each substring of line for <a
-                while (s.hasNext()) {
-
-                    sub = s.next();
-                    //If <a then our href is in this substring
-                    if (sub.contains(A_TAG) || sub.contains(A_TAG_AND_LI_TAG)) {
-
-                        while (s.hasNext()) {
-                            sub = s.next();
-                            if (sub.length() > 6) {
-                                if (sub.substring(0, 6).equals("href=\"")) {
-                                    modifedString = modifyString(sub);
-
-                                    //Finding links of the correct format
-                                    if (modifedString.contains("/wiki/") && !modifedString.contains("#")
-                                            && !modifedString.contains(":") && !modifedString.contains(".org")) {
-                                        links.add(modifedString);
-                                    }
+                                //Finding links of the correct format
+                                if (modifedString.contains("/wiki/") && !modifedString.contains("#")
+                                        && !modifedString.contains(":") && !modifedString.contains(".org") && !links.contains(modifedString)) {
+                                    links.add(modifedString);
                                 }
                             }
                         }
                     }
                 }
-                s.close();
-
             }
+            s.close();
         }
-
-
         sc.close();
         return links;
     }
@@ -124,66 +108,66 @@ public class WikiCrawler {
      */
     public void crawl() throws IOException, InterruptedException {
 
-        int currentCount = 1;
         int openingLinks = 0;
 
         PrintWriter pw = new PrintWriter(fileName);
 
-        boolean enter = false;
-        webGraph = new HashMap<>();
-        LinkedList<String> queue = new LinkedList<>();
+        boolean enter = false, noMore = false;
+        HashMap<String, WebPage> visited = new HashMap<>();
+        LinkedList<WebPage> queue = new LinkedList<>();
         ArrayList<String> mainLinks = new ArrayList<>();
-        String currentUrl = seed;
+        WebPage currentPage = new WebPage(seed, htmlToString(seed));
+        openingLinks++;
 
-        String currHTML = "";
-        queue.add(currentUrl);
+        if (containsTopics(currentPage.getHtml())) {
+            mainLinks.add(seed);
+            visited.put(seed, currentPage);
+            queue.add(currentPage);
+        }
         pw.println(max);
 
         while (!queue.isEmpty()) {
-            ArrayList<String> links = new ArrayList<>();
-            ArrayList<String> potentialLinks = new ArrayList<>();
-            currentUrl = queue.poll();
-            System.out.println(currentUrl);
-            if (!webGraph.containsKey(currentUrl)) {
-                currHTML = htmlToString(currentUrl);
+            currentPage = queue.poll();
 
+//            while (mainLinks.size() < max)  {
+            currentPage.addPotentialLinks(extractLinks(currentPage.getHtml()));
 
-                if (openingLinks % 25 == 0) {
-                    Thread.sleep(3000);
-                }
+            for (String potentialLink : currentPage.getPotentialLinks()) {
+//                    System.out.println(potentialLink);
 
-                openingLinks++;
-                potentialLinks = extractLinks(currHTML);
-            }
+                if (!mainLinks.equals(potentialLink) && !potentialLink.equals(currentPage.getSeed())) {
+                    if (mainLinks.contains(potentialLink)) {
+                        currentPage.addEdge(visited.get(potentialLink));
+                    } else if (visited.containsKey(potentialLink))
+                        break;
+                    else if (mainLinks.size() < max) {
+                        if (openingLinks % 25 == 0 && openingLinks != 0) {
+                            Thread.sleep(3000);
+                        }
+                        String html = htmlToString(potentialLink);
+                        openingLinks++;
+                        if (containsTopics(html)) {
+                            WebPage newPage = new WebPage(potentialLink, html);
 
-            for (String linkToCheck : potentialLinks) {
-                if ((containsTopics(currHTML) || topics.isEmpty())) {
+                            queue.add(newPage);
+                            visited.put(potentialLink, newPage);
+                            mainLinks.add(potentialLink);
 
-                    if ((currentCount < max && !links.contains(linkToCheck)) && !currentUrl.equals(linkToCheck)) {
-                        links.add(linkToCheck);
-
-                        mainLinks.add(linkToCheck);
-
-                        queue.add(linkToCheck);
-                        currentCount++;
-
-                        pw.println(currentUrl + " " + linkToCheck);
+                            currentPage.addEdge(newPage);
+                        }
                     }
                 }
             }
+//            }
+        }
+        System.out.println(mainLinks.size());
+        for (String page : mainLinks) {
+            WebPage webPage = visited.get(page);
 
-            if (enter) {
-                for (String linkToCheck : potentialLinks) {
-                    if ((mainLinks.contains(linkToCheck) && !links.contains(linkToCheck)) && !currentUrl.equals(linkToCheck)) {
-                        links.add(linkToCheck);
-
-                        pw.println(currentUrl + " " + linkToCheck);
-                    }
-                }
+            for (WebPage edge : webPage.getEdges()) {
+//                System.out.println(page + " " + edge.getSeed());
+                pw.println(page + " " + edge.getSeed());
             }
-            enter = true;
-
-            webGraph.put(currentUrl, links);
         }
         pw.close();
     }
@@ -205,27 +189,46 @@ public class WikiCrawler {
         return modifedString;
     }
 
-    public boolean containsTopics(String doc) throws IOException {
+    private boolean containsTopics(String doc) throws IOException {
+        int count = 0;
+        if (topics.isEmpty())
+            return true;
+
         for (String topic : topics) {
-            if (!doc.contains(topic)) {
-                return false;
+            if (doc.toLowerCase().contains(topic.toLowerCase())) {
+                count++;
             }
         }
-        return true;
+
+        if (count == topics.size())
+            return true;
+        else
+            return false;
     }
 
     //Turns an html into a String and returns it.
-    public String htmlToString(String seedUrl) throws IOException, MalformedURLException {
+    private String htmlToString(String seedUrl) throws IOException, MalformedURLException {
         StringBuilder sb = new StringBuilder();
         URL docURL = new URL(BASE_URL + seedUrl);
         InputStream is = docURL.openStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
+        boolean afterFirstPTag = false;
         String line;
 
+        //Reads entire document
         while ((line = br.readLine()) != null) {
-            sb.append(line);
-            sb.append("\n");
+
+            //Makes sure we are after the first <p>
+            if (!afterFirstPTag && line.contains(P_TAG))
+                afterFirstPTag = true;
+
+            if (afterFirstPTag) {
+                do {
+                    sb.append(line);
+                    sb.append("\n");
+                } while ((line = br.readLine()) != null);
+            }
         }
         br.close();
 
