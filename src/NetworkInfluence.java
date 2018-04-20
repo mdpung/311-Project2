@@ -32,6 +32,10 @@ public class NetworkInfluence
 
 	public HashMap<String, Vertex> vertexObjects;
 
+	private String lastElt;
+
+	private ArrayList<Integer> distanceValues;
+
 	/**
 	 * Number of vertices in the Web Graph
 	 */
@@ -48,6 +52,7 @@ public class NetworkInfluence
 		}
 		initVertices();
 		initAdjacencyList();
+		distanceValues = new ArrayList<Integer>();
 	}
 
 	private void initVertices(){
@@ -176,14 +181,25 @@ public class NetworkInfluence
 		return min;
 	}
 
+	private void saveDistances(ArrayList<String> list, int dist){ //O(n)
+		if(lastElt == null || !lastElt.equals(list.get(0))){
+			lastElt = list.get(0);
+			distanceValues.clear();
+			for(int i = 0; i < vertices.size(); i++){
+				Vertex v = vertexObjects.get(vertices.get(i));
+				distanceValues.add(distance(list, v.name));
+			}
+		}
+	}
+
 	private float getSetSizeOfSameDistVert(ArrayList<String> list, int dist){
+		saveDistances(list, dist); //O (n) but will only run once or one call to influence, O(n^2 if list has more than 1 elt
 		if(dist == 0)
 			return list.size();
 		else{
 			int count = 0;
-			for(int i = 0; i < vertices.size(); i++){
-				Vertex v = vertexObjects.get(vertices.get(i));
-				if(distance(list, v.name) == dist)
+			for(int i = 0; i < vertices.size(); i++){ //O(n)
+				if(distanceValues.get(i) == dist)
 					count++;
 			}
 			return count;

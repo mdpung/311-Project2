@@ -37,9 +37,9 @@ public class Tests {
 
     @Test
     public void testOutDegree(){
-        assertEquals(11, influence.outDegree(influence.vertexObjects.get(0).name));
-        assertEquals(13, influence.outDegree(influence.vertexObjects.get(1).name));
-        assertEquals(10, influence.outDegree(influence.vertexObjects.get(2).name));
+        assertEquals(11, influence.outDegree(influence.vertices.get(0)));
+        assertEquals(13, influence.outDegree(influence.vertices.get(1)));
+        assertEquals(10, influence.outDegree(influence.vertices.get(2)));
     }
 
     //ATTENTION I THINK THERE IS A BUG HERE

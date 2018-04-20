@@ -10,9 +10,6 @@ public class NetworkInfluenceTest2 {
 	NetworkInfluence ni = new NetworkInfluence("C:\\Users\\jeffy\\IdeaProjects\\311-Project2\\src\\inftest.txt");
 
 	public NetworkInfluenceTest2() throws FileNotFoundException {
-	}
-
-	public NetworkInfluenceTest2() throws FileNotFoundException {
     }
 	
 	@Test
