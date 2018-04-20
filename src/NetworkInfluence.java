@@ -321,7 +321,7 @@ public class NetworkInfluence
 		ArrayList<String> nodes = new ArrayList<String>();
 		nodes.addAll(vertices);
 
-		for(int i = 0; i < nodes.size(); i++)
+		for(int i = 0; i <= k; i++)
 		{
 			String vertexV = nodes.get(0);
 			int count = 0;
