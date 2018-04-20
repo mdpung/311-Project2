@@ -21,7 +21,7 @@ public class NetworkInfluence
 	/**
 	 * String array alternating origin vertex followed by vertex it shares an edge with.
 	 */
-	public ArrayList<String> edges;
+	private ArrayList<String> edges;
 	
 	private Comparator<String> c = new Comparator<String>(){
 
@@ -47,20 +47,22 @@ public class NetworkInfluence
 	/**
 	 * ArrayList of all vertices in the web graph
 	 */
-	public ArrayList<String> vertices;
+	private ArrayList<String> vertices;
 
-	public HashMap<String, LinkedList<Vertex>> adjList;
+	private HashMap<String, LinkedList<Vertex>> adjList;
 
-	public HashMap<String, Vertex> vertexObjects;
+	private HashMap<String, Vertex> vertexObjects;
 
-	private String lastElt;
+	private ArrayList<String> lastElt;
+
+	private boolean wasList;
 
 	private ArrayList<Integer> distanceValues;
 
 	/**
 	 * Number of vertices in the Web Graph
 	 */
-	public int numVert;
+	private int numVert;
 
 	// NOTE: graphData is an absolute file path that contains graph data, NOT the raw graph data itself
 	public NetworkInfluence(String graphData) throws FileNotFoundException {
@@ -203,8 +205,8 @@ public class NetworkInfluence
 	}
 
 	private void saveDistances(ArrayList<String> list, int dist){ //O(n)
-		if(lastElt == null || !lastElt.equals(list.get(0))){
-			lastElt = list.get(0);
+		if(lastElt == null || !list.equals(lastElt)){
+			lastElt = (ArrayList<String>) list.clone();
 			distanceValues.clear();
 			for(int i = 0; i < vertices.size(); i++){
 				Vertex v = vertexObjects.get(vertices.get(i));
@@ -290,9 +292,7 @@ public class NetworkInfluence
 
 	public ArrayList<String> mostInfluentialModular(int k)
 	{
-		
-		
-		
+
 		ArrayList<String> topDegreeNodes = new ArrayList<String>();
 		
 		topDegreeNodes.add(vertices.get(0));
@@ -337,7 +337,7 @@ public class NetworkInfluence
 		ArrayList<String> nodes = new ArrayList<String>();
 		nodes.addAll(vertices);
 
-		for(int i = 0; i <= k; i++)
+		for(int i = 0; i < k; i++)
 		{
 			String vertexV = nodes.get(0);
 			int count = 0;
